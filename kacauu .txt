@@ -1,0 +1,9 @@
+express: pembuatan endpoint
+cors: sebuah proteksi terhadap URL atau endpoint ketika diakses oleh domain/pihak luar
+body parser: digunakan untuk mengekstrak data yang dikirmkan
+saat proses request
+joi: memfalidasi inputan
+jsonwebtoken: memberi privilege/izin 
+md5: salah satu library untuk mengenskripsi password
+multer: membantu proses crud dalam bentuk file (menyimpan file ke server)
+nodemon: auto run

@@ -56,8 +56,11 @@ model menu {
   category    Category     @default(FOOD)
   picture     String       @default("")
   description String       @default("") @db.Text
+  createdAt   DateTime     @default(now())
+  updateAt    DateTime     @updatedAt @default(now()) // Beri nilai default saat kolom ditambahkan
   order_list  order_list[]
 }
+
 
 model order {
   id             Int          @id @default(autoincrement())

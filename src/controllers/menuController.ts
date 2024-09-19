@@ -1,6 +1,8 @@
 import { Request, Response } from "express"; //impor ekspress
-import { PrismaClient } from "@prisma/client"; //
+import { PrismaClient, Status } from "@prisma/client"; //
+import { request } from "http";
 const { v4: uuidv4 } = require("uuid");
+
 
 const prisma = new PrismaClient({ errorFormat: "pretty" })
 export const getAllMenus = async (request: Request, response: Response) => { //endpoint perlu diganti ganti pakai const kalau tetap let
@@ -16,15 +18,39 @@ export const getAllMenus = async (request: Request, response: Response) => { //e
         return response.json({ //tampilkan juga statusnya(untuk inidkator)
             status: true,
             data: allMenus,
-            massage: 'Menus has retrived'
+            massage: 'Menu e iso Cah'
         }).status(200) //100 200 Berhasil
     }
     catch (eror) {
         return response
             .json({
                 status: false,
-                massage: `There is an error ${eror}`
+                massage: `Eror Sam ${eror}`
             })
             .status(400)
     }
 }
+
+export const createMenu = async (request: Request, response: Response) => {
+    try {
+        const { name, price, category, description } = request.body
+        const uuid = uuidv4()
+
+        const newMenu = await prisma.menu.create({ //await menunngu lalu dijalankan
+            data: { uuid, name, price: Number(price), category, description }
+        })
+        return response.json({
+            Status: true,
+            data: newMenu,
+            massage: `Gawe menu DONE`
+        }).status(200);
+    }
+    catch (eror) {
+        return response
+            .json({
+                status: false,
+                massage: `Eror iii. $(eror)`
+            }).status(400);
+    }
+}
+
