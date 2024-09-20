@@ -1,5 +1,5 @@
 import { Request, Response } from "express"; //impor ekspress
-import { PrismaClient, Status } from "@prisma/client"; //
+import { PrismaClient} from "@prisma/client"; //
 import { request } from "http";
 const { v4: uuidv4 } = require("uuid");
 
@@ -18,7 +18,7 @@ export const getAllMenus = async (request: Request, response: Response) => { //e
         return response.json({ //tampilkan juga statusnya(untuk inidkator)
             status: true,
             data: allMenus,
-            massage: 'Menu e iso Cah'
+            massage: 'Iki Isi Menu E Cah'
         }).status(200) //100 200 Berhasil
     }
     catch (eror) {
