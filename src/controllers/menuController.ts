@@ -1,5 +1,5 @@
 import { Request, Response } from "express"; //impor ekspress
-import { PrismaClient} from "@prisma/client"; //
+import { PrismaClient } from "@prisma/client"; //
 import { request } from "http";
 const { v4: uuidv4 } = require("uuid");
 
@@ -42,7 +42,7 @@ export const createMenu = async (request: Request, response: Response) => {
         return response.json({
             Status: true,
             data: newMenu,
-            massage: `Gawe menu DONE`
+            massage: `Gawe Menu E Iso Cah`
         }).status(200);
     }
     catch (eror) {
@@ -54,3 +54,38 @@ export const createMenu = async (request: Request, response: Response) => {
     }
 }
 
+export const updateMenu = async (request: Request, response: Response) => {
+    try {
+        const { id } = request.params
+        const { name, price, category, description } = request.body
+
+        const findMenu = await prisma.menu.findFirst({ where: { id  : Number(id) } })
+        if (!findMenu) return response
+            .status(200)
+            .json({ status: false, massage: 'Ra Enek Menu E Cah' })
+
+        const updateMenu = await prisma.menu.update({
+            data: {
+                name: name || findMenu.name, //or untuk perubahan (kalau ada yang kiri dijalankan, misal tidak ada dijalankan yang kanan)
+                price: price ? Number(price) : findMenu.price, //operasi tenary (sebelah kiri ? = kondisi (price) jika kondisinya true (:) false )
+                category: category || findMenu.category,
+                description: description || findMenu.description
+            },
+            where: { id: Number(id) }
+        })
+
+        return response.json({
+            status: true,
+            data: updateMenu,
+            massage: 'Update Menu Iso Cah'
+        })
+
+    } catch (error) {
+        return response
+        .json({
+            status: false,
+            massage : `Eror Sam ${error}`
+        })
+        .status(400)
+    }
+}
