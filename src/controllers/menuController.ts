@@ -1,5 +1,5 @@
 import { Request, Response } from "express"; //impor ekspress
-import { PrismaClient } from "@prisma/client"; //
+import { PrismaClient, Status } from "@prisma/client"; //
 import { request } from "http";
 const { v4: uuidv4 } = require("uuid");
 
@@ -87,5 +87,30 @@ export const updateMenu = async (request: Request, response: Response) => {
             massage : `Eror Sam ${error}`
         })
         .status(400)
+    }
+}
+
+export const deleteMenu = async (request: Request, response: Response) => {
+    try {
+        const {id} = request.params
+        const findMenu = await prisma.menu.findFirst({where: {id: Number(id)}})
+        if (!findMenu) return response
+        .status(200)
+        .json({status: false, message: 'Ra Nemu Sam'})
+
+        const deletedMenu = await prisma.menu.delete({
+            where: {id: Number(id)}
+        })
+        return response.json({
+            status: true,
+            data:deleteMenu,
+            message: 'Menu E Iso Dihapus Sam'
+        }).status(200)
+    } catch (eror) {
+        return response
+        .json({
+            status:false,
+            message: `Eror Sam ${eror}`
+        }).status(400)
     }
 }
