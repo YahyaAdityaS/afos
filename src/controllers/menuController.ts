@@ -1,7 +1,10 @@
 import { Request, Response } from "express"; //impor ekspress
-import { PrismaClient, Status } from "@prisma/client"; //
+import { $Enums, PrismaClient, Status } from "@prisma/client"; //
 import { request } from "http";
 const { v4: uuidv4 } = require("uuid");
+import { BASE_URL } from "../global";
+import fs from "fs"
+import { exist } from "joi";
 
 
 const prisma = new PrismaClient({ errorFormat: "pretty" })
@@ -59,7 +62,7 @@ export const updateMenu = async (request: Request, response: Response) => {
         const { id } = request.params
         const { name, price, category, description } = request.body
 
-        const findMenu = await prisma.menu.findFirst({ where: { id  : Number(id) } })
+        const findMenu = await prisma.menu.findFirst({ where: { id: Number(id) } })
         if (!findMenu) return response
             .status(200)
             .json({ status: false, massage: 'Ra Enek Menu E Cah' })
@@ -82,35 +85,67 @@ export const updateMenu = async (request: Request, response: Response) => {
 
     } catch (error) {
         return response
-        .json({
-            status: false,
-            massage : `Eror Sam ${error}`
+            .json({
+                status: false,
+                massage: `Eror Sam ${error}`
+            })
+            .status(400)
+    }
+}
+
+export const changePicture = async (request: Request, response: Response) => {
+    try {
+        const { id } = request.params
+        const findMenu = await prisma.menu.findFirst({ where: { id: Number(id) } })
+        if (!findMenu) return response
+            .status(200)
+            .json({ status: false, message: 'Ra Nemu Menu E Sam' })
+        let filename = findMenu.picture
+        if (request.file) {
+            filename = request.file.filename
+            let path = `${BASE_URL}/../public/menu_picture/$(findMenu.picture)`
+            let exists = fs.existsSync(path)
+            if (exists && findMenu.picture !== ``) fs.unlinkSync(path)
+        }
+        const updatePicture = await prisma.menu.update({
+            data: { picture: filename },
+            where: { id: Number(id) }
         })
-        .status(400)
+        return response.json({
+            status: true,
+            data: updatePicture,
+            message: `Ganti Foto E Iso Cah`
+        }).status(200)
+    }
+    catch (error) {
+        return response.json({
+            status: false,
+            message: `Ganti Foto Gagal Sam`
+        }).status(400)
     }
 }
 
 export const deleteMenu = async (request: Request, response: Response) => {
     try {
-        const {id} = request.params
-        const findMenu = await prisma.menu.findFirst({where: {id: Number(id)}})
+        const { id } = request.params
+        const findMenu = await prisma.menu.findFirst({ where: { id: Number(id) } })
         if (!findMenu) return response
-        .status(200)
-        .json({status: false, message: 'Ra Nemu Sam'})
+            .status(200)
+            .json({ status: false, message: 'Ra Nemu Menu E Sam' })
 
         const deletedMenu = await prisma.menu.delete({
-            where: {id: Number(id)}
+            where: { id: Number(id) }
         })
         return response.json({
             status: true,
-            data:deleteMenu,
+            data: deleteMenu,
             message: 'Menu E Iso Dihapus Sam'
         }).status(200)
     } catch (eror) {
         return response
-        .json({
-            status:false,
-            message: `Eror Sam ${eror}`
-        }).status(400)
+            .json({
+                status: false,
+                message: `Eror Sam ${eror}`
+            }).status(400)
     }
 }
