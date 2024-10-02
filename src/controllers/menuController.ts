@@ -133,6 +133,10 @@ export const deleteMenu = async (request: Request, response: Response) => {
             .status(200)
             .json({ status: false, message: 'Ra Nemu Menu E Sam' })
 
+            let path = `${BASE_URL}/../public/menu_picture/$(findMenu.picture)`
+            let exists = fs.existsSync(path)
+            if (exists && findMenu.picture !== ``) fs.unlinkSync(path)
+
         const deletedMenu = await prisma.menu.delete({
             where: { id: Number(id) }
         })
