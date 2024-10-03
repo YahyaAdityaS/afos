@@ -10,7 +10,7 @@ app.use(express.json())
 app.get('/', getAllMenus)
 app.post(`/`,[verifyAddMenu], createMenu)
 app.put(`/:id`, [verifyEditMenu], updateMenu)
-app.put(`/pic/:id`, [uploadFile.single("picture")],changePicture)
+app.put(`/pic/:id`, [uploadFile.single("profile_picture")],changePicture)
 app.delete(`/:id`, deleteMenu)
 
 export default app 

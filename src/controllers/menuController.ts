@@ -43,16 +43,16 @@ export const createMenu = async (request: Request, response: Response) => {
             data: { uuid, name, price: Number(price), category, description }
         })
         return response.json({
-            Status: true,
+            status: true,
             data: newMenu,
-            massage: `Gawe Menu E Iso Cah`
+            massage: `Gawe Menu Iso Cah`
         }).status(200);
     }
     catch (eror) {
         return response
             .json({
                 status: false,
-                massage: `Eror iii. $(eror)`
+                massage: `Eror Gawe User E Cah ${eror}`
             }).status(400);
     }
 }
@@ -103,7 +103,7 @@ export const changePicture = async (request: Request, response: Response) => {
         let filename = findMenu.picture
         if (request.file) {
             filename = request.file.filename
-            let path = `${BASE_URL}/../public/menu_picture/$(findMenu.picture)`
+            let path = `${BASE_URL}/../public/menu_picture/${findMenu.picture}`
             let exists = fs.existsSync(path)
             if (exists && findMenu.picture !== ``) fs.unlinkSync(path)
         }
