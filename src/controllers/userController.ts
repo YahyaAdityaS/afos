@@ -25,7 +25,7 @@ export const getAllUser = async (request: Request, response: Response) => {
         return response
             .json({
                 status: false,
-                message: `Eror Sam ${error}`
+                message: `Eror Sam ${error} `
             }).status(400)
     }
 }
@@ -46,7 +46,7 @@ export const createUser = async (request: Request, response: Response) => {
         return response
             .json({
                 status: false,
-                message: `Eror Gawe User E Cah ${error}`
+                message: `Eror Gawe User E Cah ${error} `
             }).status(400);
     }
 }
@@ -61,7 +61,7 @@ export const updateUser = async (request: Request, response: Response) => {
             .status(200)
             .json({
                 status: false,
-                massage: 'Ra Enek User E Cah'
+                massage: 'Ra Enek User E Cah '
             })
 
         const updateUser = await prisma.user.update({
@@ -84,7 +84,7 @@ export const updateUser = async (request: Request, response: Response) => {
         return response
             .json({
                 status: false,
-                massage: `Eror Sam ${error}`
+                massage: `Eror Sam ${error} `
             })
             .status(400)
     }
@@ -96,11 +96,11 @@ export const changePicture = async (request: Request, response: Response) => {
         const findUser = await prisma.user.findFirst({ where: { id: Number(id) } })
         if (!findUser) return response
             .status(200)
-            .json({ status: false, message: 'Ra Nemu User E Sam' })
+            .json({ status: false, message: 'Ra Nemu User E Sam ' })
         let filename = findUser.profile_picture
         if (request.file) {
             filename = request.file.filename
-            let path = `${BASE_URL}/../public/profile_picture/${findUser.profile_picture}`
+            let path = `${BASE_URL}/../public/profile-picture/${findUser.profile_picture}`
             let exists = fs.existsSync(path)
             if (exists && findUser.profile_picture !== ``) fs.unlinkSync(path)
         }
@@ -117,7 +117,7 @@ export const changePicture = async (request: Request, response: Response) => {
     catch (error) {
         return response.json({
             status: false,
-            message: `Ganti Foto Gagal Sam`
+            message: `Ganti Foto Gagal Sam `
         }).status(400)
     }
 }
@@ -128,9 +128,9 @@ export const deleteUser = async (request: Request, response: Response) => {
         const findUser = await prisma.user.findFirst({ where: { id: Number(id) } })
         if (!findUser) return response
             .status(200)
-            .json({ status: false, message: 'Ra Nemu Menu E Sam' })
+            .json({ status: false, message: 'Ra Nemu Menu E Sam ' })
 
-            let path = `${BASE_URL}/../public/profile_picture/${findUser.profile_picture}`
+            let path = `${BASE_URL}/../public/profile-picture/${findUser.profile_picture}`
             let exists = fs.existsSync(path)
             if (exists && findUser.profile_picture !== ``) fs.unlinkSync(path)
 
@@ -146,7 +146,7 @@ export const deleteUser = async (request: Request, response: Response) => {
         return response
             .json({
                 status: false,
-                message: `Eror Sam ${eror}`
+                message: `Eror Sam ${eror} `
             }).status(400)
     }
 }
@@ -163,7 +163,7 @@ export const authentication = async (request: Request, response: Response) => {
                 .json({
                     status: false,
                     logged: false,
-                    massage: `Email Ro Password Salah`
+                    massage: `Email Ro Password Salah `
                 })
         }
         let data = {
@@ -186,7 +186,7 @@ export const authentication = async (request: Request, response: Response) => {
         return response
             .json({
                 status: false,
-                message: `Eror Ga Boong ${error}`
+                message: `Eror Ga Boong ${error} `
             }).status(400)
     }
 }
