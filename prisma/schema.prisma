@@ -57,10 +57,10 @@ model menu {
   picture     String       @default("")
   description String       @default("") @db.Text
   createdAt   DateTime     @default(now())
-  updateAt    DateTime     @updatedAt @default(now()) // Beri nilai default saat kolom ditambahkan
+  updateAt    DateTime     @default(now()) @updatedAt // Beri nilai default saat kolom ditambahkan
   order_list  order_list[]
+  order       order[]
 }
-
 
 model order {
   id             Int          @id @default(autoincrement())
@@ -71,7 +71,10 @@ model order {
   payment_method payment      @default(CASH)
   idUser         Int?
   user           User?        @relation(fields: [idUser], references: [id])
+  idMenu         Int?
+  menu           menu?        @relation(fields: [idMenu], references: [id])
   status         Status       @default(NEW)
+  createdAt      DateTime     @default(now())
   order_list     order_list[]
 }
 
