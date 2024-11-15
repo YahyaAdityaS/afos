@@ -39,7 +39,7 @@ export const getAllOrders = async (request: Request, response: Response) => {
 export const createOrder = async (request: Request, response: Response) => {
     try {
         /** get requested data (data has been sent from request) */
-        const { customer, table_number, payment_method, status, orderlists } = request.body
+        const { customer, table_number, payment_method, status, order_list } = request.body
         const user = request.body.user
         const uuid = uuidv4()
         /**
@@ -50,8 +50,8 @@ export const createOrder = async (request: Request, response: Response) => {
 
         /** loop details of order to check menu and count the total price */
         let total_price = 0
-        for (let index = 0; index < orderlists.length; index++) {
-            const { idMenu } = orderlists[index]
+        for (let index = 0; index < order_list.length; index++) {
+            const { idMenu } = order_list[index]
             const detailMenu = await prisma.menu.findFirst({
                 where: {
                     id: idMenu
@@ -59,7 +59,7 @@ export const createOrder = async (request: Request, response: Response) => {
             })
             if (!detailMenu) return response
                 .status(200).json({ status: false, message: `Menu with id ${idMenu} is not found` })
-            total_price += (detailMenu.price * orderlists[index].quantity)
+            total_price += (detailMenu.price * order_list[index].quantity)
         }
 
 
@@ -70,9 +70,9 @@ export const createOrder = async (request: Request, response: Response) => {
 
 
         /** loop details of Order to save in database */
-        for (let index = 0; index < orderlists.length; index++) {
+        for (let index = 0; index < order_list.length; index++) {
             const uuid = uuidv4()
-            const { idMenu, quantity, note } = orderlists[index]
+            const { idMenu, quantity, note } = order_list[index]
             await prisma.order_list.create({
                 data: {
                     uuid, idOrder: newOrder.id, idMenu: Number(idMenu), quantity: Number(quantity), note
@@ -108,7 +108,7 @@ export const deleteOrder = async (request: Request, response: Response) => {
 
 
         /** process to delete details of order */
-        let deleteOrderList = await prisma.order_list.deleteMany({ where: { idOrder: Number(id) } })
+        let deleteOrder_list = await prisma.order_list.deleteMany({ where: { idOrder: Number(id) } })
         /** process to delete of Order */
         let deleteOrder = await prisma.order.delete({ where: { id: Number(id) } })
 
@@ -130,36 +130,42 @@ export const deleteOrder = async (request: Request, response: Response) => {
 
 export const updateStatusOrder = async (request: Request, response: Response) => {
     try {
+        /** get id of order's id that sent in parameter of URL */
         const { id } = request.params
+        /** get requested data (data has been sent from request) */
         const { status } = request.body
-
+        const user = request.body.user
+ 
+ 
+        /** make sure that data is exists in database */
         const findOrder = await prisma.order.findFirst({ where: { id: Number(id) } })
         if (!findOrder) return response
             .status(200)
-            .json({
-                status: false,
-                massage: 'Ra Enek User E Cah '
-            })
-
-        const updateStatusOrder = await prisma.order.update({
+            .json({ status: false, message: `Order is not found` })
+ 
+ 
+        /** process to update menu's data */
+        const updatedStatus = await prisma.order.update({
             data: {
-                status: status || findOrder.status
+                status: status || findOrder.status,
+                idUser: user.id ? user.id : findOrder.idUser
             },
             where: { id: Number(id) }
         })
-
+ 
+ 
         return response.json({
             status: true,
-            data: updateStatusOrder,
-            massage: 'Update Status Order Iso Cah'
-        })
-
+            data: updatedStatus,
+            message: `Order has updated`
+        }).status(200)
     } catch (error) {
         return response
             .json({
                 status: false,
-                massage: `Eror Sam ${error} `
+                message: `There is an error. ${error}`
             })
             .status(400)
     }
-}
+ }
+ 

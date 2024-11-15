@@ -7,3 +7,35 @@ jsonwebtoken: memberi privilege/izin
 md5: salah satu library untuk mengenskripsi password
 multer: membantu proses crud dalam bentuk file (menyimpan file ke server)
 nodemon: auto run
+
+export const changePicture = async (request: Request, response: Response) => {
+    try {
+        const { id } = request.params
+        const findMenu = await prisma.menu.findFirst({ where: { id: Number(id) } })
+        if (!findMenu) return response
+            .status(200)
+            .json({ status: false, message: 'Ra Nemu Menu E Sam' })
+        let filename = findMenu.picture
+        if (request.file) {
+            filename = request.file.filename
+            let path = `${BASE_URL}/../public/menu_picture/${findMenu.picture}`
+            let exists = fs.existsSync(path)
+            if (exists && findMenu.picture !== ``) fs.unlinkSync(path)
+        }
+        const updatePicture = await prisma.menu.update({
+            data: { picture: filename },
+            where: { id: Number(id) }
+        })
+        return response.json({
+            status: true,
+            data: updatePicture,
+            message: `Ganti Foto E Iso Cah`
+        }).status(200)
+    }
+    catch (error) {
+        return response.json({
+            status: false,
+            message: `Ganti Foto Gagal Sam`
+        }).status(400)
+    }
+}

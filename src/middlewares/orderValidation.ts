@@ -13,7 +13,7 @@ const addDataSchema = Joi.object({
     payment_method: Joi.string().valid("CASH", "QRIS").uppercase().required(),
     status: Joi.string().valid("NEW", "PAID", "DONE").uppercase().required(),
     idUser: Joi.number().optional(),
-    orderlists: Joi.array().items(orderListSchema).min(1).required(),
+    order_list: Joi.array().items(orderListSchema).min(1).required(),
     user: Joi.optional()
 })
 

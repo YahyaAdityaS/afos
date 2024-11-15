@@ -9,7 +9,7 @@ const addDataSchema = Joi.object({
     category: Joi.string().valid('DRINK', 'FOOD', 'SNACK').required(), //.valid = validasi kategori menu (harus sesuai dengan enum)
     description: Joi.string().required(),
     picture: Joi.allow().optional(), //optional (Bisa diisi bisa tidak)
-    user: Joi.required()
+    user: Joi.optional()
 })
 
 const editDataSchema = Joi.object({
@@ -18,7 +18,7 @@ const editDataSchema = Joi.object({
     category: Joi.string().valid('DRINK', 'FOOD', 'SNACK').optional(), //.valid = validasi kategori menu (harus sesuai dengan enum)
     description: Joi.string().optional(),
     picture: Joi.allow().optional(), //optional (Bisa diisi bisa tidak)
-    user: Joi.required()
+    user: Joi.optional()
 })
 
 export const verifyAddMenu = (request: Request, response: Response, next: NextFunction) => {
