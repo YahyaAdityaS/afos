@@ -180,7 +180,7 @@ export const authentication = async (request: Request, response: Response) => {
             .json({
                 status: true,
                 logged: true,
-                message: `Login Succes`, token
+                message: `Login Succes`, token, data: data
             })
     } catch (error) {
         return response

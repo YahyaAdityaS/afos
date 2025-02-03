@@ -30,7 +30,7 @@ export const verifyAuthentication = (
 ) => {
     const {error} = authSchema.validate(request.body, {abortEarly: false});
     if(error) {
-        return response.status(400).json({
+        return response.status(200).json({
             status: false,
             message: error.details.map((it) => it.message).join(),
         })

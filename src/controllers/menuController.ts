@@ -73,7 +73,7 @@ export const updateMenu = async (request: Request, response: Response) => {
         let filename = findMenu.picture
         if (request.file) {
             filename = request.file.filename
-            let path = `${BASE_URL}/../public/menu_picture/${findMenu.picture}`
+            let path = `${BASE_URL}/../public/menu_picture${findMenu.picture}`
             let exists = fs.existsSync(path)
             if (exists && findMenu.picture !== ``) fs.unlinkSync(path)
         }
