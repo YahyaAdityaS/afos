@@ -21,14 +21,14 @@ export const getAllMenus = async (request: Request, response: Response) => { //e
         return response.json({ //tampilkan juga statusnya(untuk inidkator)
             status: true,
             data: allMenus,
-            massage: 'Iki Isi Menu E Cah'
+            message: 'Menu berhasil ditampilkan'
         }).status(200) //100 200 Berhasil
     }
     catch (eror) {
         return response
             .json({
                 status: false,
-                massage: `Eror Sam ${eror}`
+                message: `Yah Error ${eror}`
             })
             .status(400)
     }
@@ -48,14 +48,14 @@ export const createMenu = async (request: Request, response: Response) => {
         return response.json({
             status: true,
             data: newMenu,
-            massage: `Gawe Menu Iso Cah`
+            message: `Buat menu bisa yaa`
         }).status(200);
     }
     catch (eror) {
         return response
             .json({
                 status: false,
-                massage: `Eror Gawe User E Cah ${eror}`
+                message: `Buat menu error :( ${eror}`
             }).status(400);
     }
 }
@@ -68,7 +68,7 @@ export const updateMenu = async (request: Request, response: Response) => {
         const findMenu = await prisma.menu.findFirst({ where: { id: Number(id) } })
         if (!findMenu) return response
             .status(200)
-            .json({ status: false, massage: 'Ra Enek Menu E Cah' })
+            .json({ status: false, message: 'Menunya nda ada' })
 
         let filename = findMenu.picture
         if (request.file) {
@@ -92,14 +92,14 @@ export const updateMenu = async (request: Request, response: Response) => {
         return response.json({
             status: true,
             data: updateMenu,
-            massage: 'Update Menu Iso Cah'
+            message: 'Update menu bisa yaa'
         })
 
     } catch (error) {
         return response
             .json({
                 status: false,
-                massage: `Eror Sam ${error}`
+                message: `Eror Sam ${error}`
             })
             .status(400)
     }
@@ -111,7 +111,7 @@ export const deleteMenu = async (request: Request, response: Response) => {
         const findMenu = await prisma.menu.findFirst({ where: { id: Number(id) } })
         if (!findMenu) return response
             .status(200)
-            .json({ status: false, message: 'Ra Nemu Menu E Sam' })
+            .json({ status: false, message: 'Menunya nda ada' })
 
             let path = `${BASE_URL}/../public/menu_picture/$(findMenu.picture)`
             let exists = fs.existsSync(path)
@@ -123,13 +123,13 @@ export const deleteMenu = async (request: Request, response: Response) => {
         return response.json({
             status: true,
             data: deleteMenu,
-            message: 'Menu E Iso Dihapus Sam'
+            message: 'Menunya bisa dihapus yaa'
         }).status(200)
     } catch (eror) {
         return response
             .json({
                 status: false,
-                message: `Eror Sam ${eror}`
+                message: `Yah Error :( ${eror}`
             }).status(400)
     }
 }

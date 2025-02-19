@@ -38,21 +38,22 @@ export const verifyAuthentication = (
     return next();  
 }
 
-export const verifyAddUser = (
-    request: Request,
-    response: Response,
-    next: NextFunction
-) => {
-    //beh
-    const {error} = addDataSchema.validate(request.body, {abortEarly: false});
-    if(error) {
-        return response.status(400).json({
-            status: false,
-            message: error.details.map((it) => it.message).join(),
-        })
+    export const verifyAddUser = (
+        request: Request,
+        response: Response,
+        next: NextFunction
+    ) => {
+        //beh
+        const {error} = addDataSchema.validate(request.body, {abortEarly: false});
+        if(error) {
+            return response.status(400).json({
+                status: false,
+                message: error.details.map((it) => it.message).join(),
+            })
+        }
+        return next();
     }
-    return next();
-}
+    
 export const verifyEditUser = (
     request: Request,
     response: Response,

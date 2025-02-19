@@ -11,8 +11,10 @@ require('dotenv').config();
 
 const PORT: number = 8000
 const app = express()
+
 app.use(cors())
-app.use(express.json())
+app.use(express.json()) // Untuk menerima request JSON
+app.use(express.urlencoded({ extended: true })) // Untuk menerima request form-urlencoded
 
 const swaggerOptions = {
     swaggerDefinition: {

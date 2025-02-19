@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import { $Enums, PrismaClient, Role, Status } from "@prisma/client";
-import { request } from "http";
-const { v4: uuidv4 } = require("uuid");
+import { PrismaClient } from "@prisma/client";
+import { v4 as uuidv4 } from "uuid"
 import { BASE_URL, SECRET } from "../global";
 import fs from "fs"
 import { date, exist, number } from "joi";
@@ -9,6 +8,29 @@ import md5 from "md5"; //enskripsi password
 import { sign } from "jsonwebtoken"; //buat mendapatkan token jsonwebtoken
 
 const prisma = new PrismaClient({ errorFormat: "pretty" })
+
+export const getProfile = async (request: Request, response: Response) => {
+    try {
+        const user = request.body.user
+        const getProfile = await prisma.user.findFirst({
+            where: {
+                id : user.id
+            }
+        })
+        return response.json({
+            status: true,
+            data: getProfile,
+            message: `User berhasil ditampilkan`
+        }).status(200)
+    }
+    catch (error) {
+        return response.json({
+            status: false,
+            message: `Yah Error :( ${error}`
+        }).status(400)
+    }
+}
+
 export const getAllUser = async (request: Request, response: Response) => {
     try {
         const { search } = request.query
@@ -18,14 +40,14 @@ export const getAllUser = async (request: Request, response: Response) => {
         return response.json({
             status: true,
             data: allUser,
-            message: 'Iki Isi User E Cah'
+            message: 'Ini isi usernya yaa'
         }).status(200)
     }
     catch (error) {
         return response
             .json({
                 status: false,
-                message: `Eror Sam ${error} `
+                message: `Yah Error :( ${error} `
             }).status(400)
     }
 }
@@ -34,20 +56,24 @@ export const createUser = async (request: Request, response: Response) => {
     try {
         const { name, email, password, role } = request.body
         const uuid = uuidv4()
+
+        let filename = "" //untuk upload foto menu
+        if (request.file) filename = request.file.filename
+
         const newUser = await prisma.user.create({
-            data: { uuid, name, email, password: md5(password), role }
+            data: { uuid, name, email, password: md5(password), role, profile_picture:filename }
         })
-        return response.json({
+        return response.status(200).json({
             status: true,
-            date: newUser,
-            message: `Gawe User Iso Cah`
+            data: newUser,
+            message: `Buat user bisa yaa`
         })
     } catch (error) {
         return response
-            .json({
+            .status(400).json({
                 status: false,
-                message: `Eror Gawe User E Cah ${error} `
-            }).status(400);
+                message: `Buat user error :( ${error} `
+            })
     }
 }
 
@@ -61,15 +87,24 @@ export const updateUser = async (request: Request, response: Response) => {
             .status(200)
             .json({
                 status: false,
-                massage: 'Ra Enek User E Cah '
+                message: 'Usernya nda ada'
             })
+
+            let filename = findUser.profile_picture
+            if (request.file) {
+                filename = request.file.filename
+                let path = `${BASE_URL}/../public/profile-picture/${findUser.profile_picture}`
+                let exists = fs.existsSync(path)
+                if (exists && findUser.profile_picture !== ``) fs.unlinkSync(path)
+            }
 
         const updateUser = await prisma.user.update({
             data: {
                 name: name || findUser.name, //or untuk perubahan (kalau ada yang kiri dijalankan, misal tidak ada dijalankan yang kanan)
                 email: email || findUser.email, //operasi tenary (sebelah kiri ? = kondisi (price) jika kondisinya true (:) false )
                 password: password || findUser.password,
-                role: role || findUser.role
+                role: role || findUser.role,
+                profile_picture: filename
             },
             where: { id: Number(id) }
         })
@@ -77,14 +112,14 @@ export const updateUser = async (request: Request, response: Response) => {
         return response.json({
             status: true,
             data: updateUser,
-            massage: 'Update User Iso Cah'
+            message: 'Update user bisa yaa'
         })
 
     } catch (error) {
         return response
             .json({
                 status: false,
-                massage: `Eror Sam ${error} `
+                message: `Yah Error :( ${error} `
             })
             .status(400)
     }
@@ -96,7 +131,7 @@ export const changePicture = async (request: Request, response: Response) => {
         const findUser = await prisma.user.findFirst({ where: { id: Number(id) } })
         if (!findUser) return response
             .status(200)
-            .json({ status: false, message: 'Ra Nemu User E Sam ' })
+            .json({ status: false, message: 'Usernya nda ada' })
         let filename = findUser.profile_picture
         if (request.file) {
             filename = request.file.filename
@@ -111,13 +146,13 @@ export const changePicture = async (request: Request, response: Response) => {
         return response.json({
             status: true,
             data: updatePicture,
-            message: `Ganti Foto E Iso Cah`
+            message: `Ganti foto bisa yaa`
         }).status(200)
     }
     catch (error) {
         return response.json({
             status: false,
-            message: `Ganti Foto Gagal Sam `
+            message: `Ganti foto gagal yaa`
         }).status(400)
     }
 }
@@ -128,11 +163,11 @@ export const deleteUser = async (request: Request, response: Response) => {
         const findUser = await prisma.user.findFirst({ where: { id: Number(id) } })
         if (!findUser) return response
             .status(200)
-            .json({ status: false, message: 'Ra Nemu Menu E Sam ' })
+            .json({ status: false, message: 'Usernya nda ada'})
 
-            let path = `${BASE_URL}/../public/profile-picture/${findUser.profile_picture}`
-            let exists = fs.existsSync(path)
-            if (exists && findUser.profile_picture !== ``) fs.unlinkSync(path)
+        let path = `${BASE_URL}/../public/profile-picture/${findUser.profile_picture}`
+        let exists = fs.existsSync(path)
+        if (exists && findUser.profile_picture !== ``) fs.unlinkSync(path)
 
         const deletedUser = await prisma.user.delete({
             where: { id: Number(id) }
@@ -140,13 +175,13 @@ export const deleteUser = async (request: Request, response: Response) => {
         return response.json({
             status: true,
             data: deleteUser,
-            message: 'User E Iso Dihapus Sam'
+            message: 'Usernya bisa dihapus yaa'
         }).status(200)
     } catch (eror) {
         return response
             .json({
                 status: false,
-                message: `Eror Sam ${eror} `
+                message: `Yah Error :( ${eror} `
             }).status(400)
     }
 }
@@ -163,7 +198,7 @@ export const authentication = async (request: Request, response: Response) => {
                 .json({
                     status: false,
                     logged: false,
-                    massage: `Email Ro Password Salah `
+                    message: `Email sama password salah`
                 })
         }
         let data = {
@@ -186,7 +221,7 @@ export const authentication = async (request: Request, response: Response) => {
         return response
             .json({
                 status: false,
-                message: `Eror Ga Boong ${error} `
+                message: `Yah Error :( ${error} `
             }).status(400)
     }
 }
