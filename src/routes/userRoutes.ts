@@ -5,12 +5,14 @@ import { verify } from "crypto";
 import { changePicture } from "../controllers/userController";
 import uploadFile from "../middlewares/userUpload";
 import { verifyRole, verifyToken } from "../middlewares/authorization";
+import { getCashierDashboard } from "../controllers/cashierController";
 
 const app = express();
 app.use(express.json());
 
 app.get(`/`, getAllUser)
 app.get(`/profile`, verifyToken, getProfile)
+app.get(`/cashier/dashboard`, verifyToken, verifyRole(["CASHIER"]), getCashierDashboard)
 app.post(`/create`, [uploadFile.single("picture"), verifyAddUser], createUser)
 app.put(`/:id`,[uploadFile.single("picture"), verifyEditUser], updateUser)
 app.post(`/login`,[verifyAuthentication], authentication)

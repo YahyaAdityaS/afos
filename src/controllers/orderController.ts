@@ -38,61 +38,82 @@ export const getAllOrders = async (request: Request, response: Response) => {
 
 export const createOrder = async (request: Request, response: Response) => {
     try {
-        /** get requested data (data has been sent from request) */
-        const { customer, table_number, payment_method, status, order_list } = request.body
-        const user = request.body.user
-        const uuid = uuidv4()
-        /**
-         * assume that "orderlists" is an array of object that has keys:
-         * menuId, quantity, note
-         * */
+        // Mendapatkan data yang dikirimkan
+        const { customer, table_number, payment_method, status, order_list } = request.body;
 
+        // Pastikan semua field yang diperlukan ada
+        if (!customer || !table_number || !payment_method || !status || !order_list) {
+            return response.status(400).json({
+                status: false,
+                message: "Missing required fields"
+            });
+        }
 
-        /** loop details of order to check menu and count the total price */
-        let total_price = 0
+        const uuid = uuidv4();
+        let filename = ""; // Untuk upload foto menu
+        if (request.file) filename = request.file.filename;
+
+        // Hitung total harga
+        let total_price = 0;
         for (let index = 0; index < order_list.length; index++) {
-            const { idMenu } = order_list[index]
+            const { idMenu } = order_list[index];
             const detailMenu = await prisma.menu.findFirst({
                 where: {
-                    id: idMenu
+                    id: Number(idMenu)
                 }
-            })
-            if (!detailMenu) return response
-                .status(200).json({ status: false, message: `Menu with id ${idMenu} is not found` })
-            total_price += (detailMenu.price * order_list[index].quantity)
+            });
+
+            if (!detailMenu) {
+                return response.status(400).json({
+                    status: false,
+                    message: `Menu with id ${idMenu} is not found`
+                });
+            }
+
+            total_price += (detailMenu.price * order_list[index].quantity);
         }
 
-
-        /** process to save new order */
+        // Simpan pesanan
         const newOrder = await prisma.order.create({
-            data: { uuid, customer, table_number, total_price, payment_method, status, idUser: user.id }
-        })
+            data: { 
+                uuid, 
+                customer, 
+                table_number, 
+                total_price, 
+                payment_method, 
+                status 
+            }
+        });
 
-
-        /** loop details of Order to save in database */
+        // Simpan detail pesanan
         for (let index = 0; index < order_list.length; index++) {
-            const uuid = uuidv4()
-            const { idMenu, quantity, note } = order_list[index]
+            const uuid = uuidv4();
+            const { idMenu, quantity, note } = order_list[index];
             await prisma.order_list.create({
                 data: {
-                    uuid, idOrder: newOrder.id, idMenu: Number(idMenu), quantity: Number(quantity), note
+                    uuid, 
+                    idOrder: newOrder.id, 
+                    idMenu: Number(idMenu), 
+                    quantity: Number(quantity), 
+                    note
                 }
-            })
+            });
         }
+
         return response.json({
             status: true,
             data: newOrder,
-            message: `New Order has created`
-        }).status(200)
+            message: "New order has been created"
+        }).status(200);
+
     } catch (error) {
-        return response
-            .json({
-                status: false,
-                message: `There is an error. ${error}`
-            })
-            .status(400)
+        return response.status(400).json({
+            status: false,
+            message: `There was an error: ${error}`
+        });
     }
-}
+};
+
 
 export const deleteOrder = async (request: Request, response: Response) => {
     try {
@@ -135,15 +156,15 @@ export const updateStatusOrder = async (request: Request, response: Response) =>
         /** get requested data (data has been sent from request) */
         const { status } = request.body
         const user = request.body.user
- 
- 
+
+
         /** make sure that data is exists in database */
         const findOrder = await prisma.order.findFirst({ where: { id: Number(id) } })
         if (!findOrder) return response
             .status(200)
             .json({ status: false, message: `Order is not found` })
- 
- 
+
+
         /** process to update menu's data */
         const updatedStatus = await prisma.order.update({
             data: {
@@ -152,8 +173,8 @@ export const updateStatusOrder = async (request: Request, response: Response) =>
             },
             where: { id: Number(id) }
         })
- 
- 
+
+
         return response.json({
             status: true,
             data: updatedStatus,
@@ -167,5 +188,5 @@ export const updateStatusOrder = async (request: Request, response: Response) =>
             })
             .status(400)
     }
- }
- 
+}
+
